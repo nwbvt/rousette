@@ -1,0 +1,4 @@
+parser:
+  type: bag_of_words
+queue:
+  type: memory
