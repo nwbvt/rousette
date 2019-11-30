@@ -1,5 +1,4 @@
-import json
-from flask import Flask, request
+from flask import Flask, request, jsonify, make_response
 from rousette.env import get_queue
 
 app = Flask(__name__)
@@ -13,10 +12,11 @@ def submit_doc():
     doc_id = request.json['doc_id']
     body = request.json['body']
     queue.submit_doc(doc_id, body)
-    return 201
+    loc = f"/docs/{doc_id}"
+    return jsonify(location=loc), 201, {"Location": loc}
 
 @app.route("/docs/<path:doc_id>")
 def get_doc(doc_id):
     queue = get_queue()
     data = queue.get_doc(doc_id)
-    return 200, json.dumps(data)
+    return jsonify(doc=data)
