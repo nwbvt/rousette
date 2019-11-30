@@ -1,28 +1,25 @@
 from rousette import doc_parser, doc_queue
-import yaml
 
-QUEUE = None
+QUEUE_TYPE_MEMORY = "memory"
+QUEUE_TYPE_KAFKA = "kafka"
+
+PARSER_TYPE_BAG_OF_WORDS = "bag_of_words"
+
+_QUEUE = None
 
 def create_queue(config):
     """
     Creates a queue from a config
     """
-    global QUEUE
+    global _QUEUE
     parser = None
-    if config['parser']['type'] == "bag_of_words":
+    if config.Parser['type'] == PARSER_TYPE_BAG_OF_WORDS:
         parser = doc_parser.bag_of_words
-    if config['queue']['type'] == "memory":
-        QUEUE = doc_queue.MemoryDocumentQueue(parser)
+    if config.Queue['type'] == QUEUE_TYPE_MEMORY:
+        _QUEUE = doc_queue.MemoryDocumentQueue(parser)
 
 def get_queue():
     """
     Get the queue
     """
-    return QUEUE
-
-def load_config(config_file):
-    """
-    Load the configuration
-    """
-    with open(config_file) as f:
-        return yaml.load(f)
+    return _QUEUE
