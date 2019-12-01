@@ -15,8 +15,10 @@ def submit_doc():
     loc = f"/docs/{doc_id}"
     return jsonify(location=loc), 201, {"Location": loc}
 
-@app.route("/docs/<path:doc_id>")
+@app.route("/docs/<path:doc_id>/repr")
 def get_doc(doc_id):
     queue = get_queue()
     data = queue.get_doc(doc_id)
-    return jsonify(doc=data)
+    if data:
+        return jsonify(doc=data)
+    return jsonify(err=f"{doc_id} not found"), 404
