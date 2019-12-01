@@ -13,9 +13,9 @@ def create_queue(config):
     """
     global _QUEUE
     parser = None
-    if config.Parser['type'] == PARSER_TYPE_BAG_OF_WORDS:
+    if config['PARSER']['TYPE'] == PARSER_TYPE_BAG_OF_WORDS:
         parser = doc_parser.bag_of_words
-    if config.Queue['type'] == QUEUE_TYPE_MEMORY:
+    if config['QUEUE']['TYPE'] == QUEUE_TYPE_MEMORY:
         _QUEUE = doc_queue.MemoryDocumentQueue(parser)
 
 def get_queue():

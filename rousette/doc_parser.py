@@ -7,4 +7,6 @@ def bag_of_words(document):
     """
     Simple bag of words parser
     """
-    return Counter(document.split())
+    words = document.split()
+    counter = Counter(words)
+    return counter
