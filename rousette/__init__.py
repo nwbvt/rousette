@@ -6,6 +6,6 @@ def create_app(config=None):
         app.config.from_object(config)
     else:
         app.config.from_envvar("ROUSETTE_ENV")
-    env.create_queue(app.config)
+    env.init(app.config)
     
     return app

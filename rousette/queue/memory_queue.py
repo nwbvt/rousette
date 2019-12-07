@@ -1,6 +1,18 @@
 """
-Module for defining document queues
+A memory backed queue
 """
+from rousette import doc_parser, env
+
+_QUEUE = None
+
+def init_queue(config):
+    global _QUEUE
+    if config['PARSER']['TYPE'] == env.PARSER_TYPE_BAG_OF_WORDS:
+        parser = doc_parser.bag_of_words
+    _QUEUE = MemoryDocumentQueue(parser)
+
+def get_queue():
+    return _QUEUE
 
 class MemoryDocumentQueue:
     """
