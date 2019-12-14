@@ -2,7 +2,7 @@ import pytest
 from os import remove
 import rousette
 from test import test_config
-from rousette.queue import get_queue
+from rousette.queue import get_doc_queue
 from rousette.doc_parser import get_parser
 from rousette.db import get_db, init_db
 
@@ -24,8 +24,8 @@ def config(app):
     return app.config
 
 @pytest.fixture
-def queue(config):
-    return get_queue(config)
+def doc_queue(config):
+    return get_doc_queue(config)
 
 @pytest.fixture
 def parser(config):

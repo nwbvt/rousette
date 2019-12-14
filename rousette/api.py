@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, make_response
-from rousette.queue import get_queue
+from rousette.queue import get_doc_queue
 from rousette.doc_parser import get_parser
 
 app = Flask(__name__)
@@ -9,7 +9,7 @@ def submit_doc():
     """
     Submit a document
     """
-    queue = get_queue(app.config)
+    queue = get_doc_queue(app.config)
     parser = get_parser(app.config)
     doc_id = request.json['doc_id']
     body = request.json['body']
@@ -20,7 +20,7 @@ def submit_doc():
 
 @app.route("/docs/<path:doc_id>/repr")
 def get_doc(doc_id):
-    queue = get_queue(app.config)
+    queue = get_doc_queue(app.config)
     data = queue.get_by_id(doc_id)
     if data:
         return jsonify(doc=data)

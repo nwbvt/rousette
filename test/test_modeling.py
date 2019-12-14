@@ -62,13 +62,13 @@ def docs():
     return all_docs
 
 @pytest.fixture
-def doc_queue(docs, queue, parser):
+def populated_queue(docs, doc_queue, parser):
     for doc_id, doc in docs:
-        queue.put(doc_id, parser(doc))
-    return queue
+        doc_queue.put(doc_id, parser(doc))
+    return doc_queue
 
-def test_lda(config, doc_queue, parser):
-    vectorizer, model = lda(config, doc_queue, 3)
+def test_lda(config, populated_queue, parser):
+    vectorizer, model = lda(config, populated_queue, 3)
     assert set(vectorizer.vocabulary_) == set(VOCAB)
     bat_doc1 = bat_doc(200)
     bat_doc2 = bat_doc(200)
@@ -83,8 +83,8 @@ def test_lda(config, doc_queue, parser):
     assert np.argmax(bat_vector1) != np.argmax(bird_vector)
     assert np.argmax(bird_vector) != np.argmax(dog_vector)
 
-def test_build_model(config, doc_queue, parser, db):
-    model_id = build_model(config, doc_queue, 3)
+def test_build_model(config, populated_queue, parser, db):
+    model_id = build_model(config, populated_queue, 3)
     result = db.execute(MODEL.select().where(MODEL.c.model_id==model_id)).fetchall()
     assert len(result) == 1
     score = load_scorer(config, model_id)
