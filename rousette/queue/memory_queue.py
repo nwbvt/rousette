@@ -7,12 +7,12 @@ _DOC_QUEUE = None
 
 def init_queue():
     global _DOC_QUEUE
-    _DOC_QUEUE = MemoryDocumentQueue()
+    _DOC_QUEUE = MemoryQueue()
 
 def get_doc_queue():
     return _DOC_QUEUE
 
-class MemoryDocumentQueue:
+class MemoryQueue:
     """
     In memory implementation of a document queue
     Only applicable for small datasets
@@ -20,8 +20,9 @@ class MemoryDocumentQueue:
     def __init__(self):
         self.docs = []
         self.by_id = {}
+        self.listeners = []
 
-    def submit_doc(self, doc_id, doc):
+    def put(self, doc_id, doc):
         """
         Submit a document
         It will make a good faith effort to not reinsert an existing document, but this is not guarenteed
@@ -30,8 +31,10 @@ class MemoryDocumentQueue:
             return self.by_id[doc_id]
         self.docs.append(doc)
         self.by_id[doc_id] = self.docs.index(doc)
+        for listener in self.listeners:
+            listener.notify(doc)
 
-    def get_doc(self, doc_id):
+    def get_by_id(self, doc_id):
         """
         Get a document by id
         """
@@ -46,3 +49,9 @@ class MemoryDocumentQueue:
         """
         start = -n or since
         return iter(self.docs[start:])
+    
+    def register_listener(self, listener):
+        """
+        Register a listener
+        """
+        self.listeners.append(listener)

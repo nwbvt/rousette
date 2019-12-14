@@ -14,14 +14,14 @@ def submit_doc():
     doc_id = request.json['doc_id']
     body = request.json['body']
     doc = parser(body)
-    queue.submit_doc(doc_id, doc)
+    queue.put(doc_id, doc)
     loc = f"/docs/{doc_id}"
     return jsonify(location=loc), 201, {"Location": loc}
 
 @app.route("/docs/<path:doc_id>/repr")
 def get_doc(doc_id):
     queue = get_queue(app.config)
-    data = queue.get_doc(doc_id)
+    data = queue.get_by_id(doc_id)
     if data:
         return jsonify(doc=data)
     return jsonify(err=f"{doc_id} not found"), 404

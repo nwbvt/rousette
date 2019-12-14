@@ -7,7 +7,8 @@ from smart_open import open
 def filename(config, model_id):
     "Get the filename for a model"
     save_loc = config['MODEL']['SAVE_LOC']
-    filename = f"{save_loc}/{model_id}.pkl"
+    return f"{save_loc}/{model_id}.pkl"
+
 
 def build_model(config, doc_queue, num_topics, model_id):
     """Build and save a model"""
@@ -26,3 +27,17 @@ def lda(config, doc_queue, num_topics):
     lda = LatentDirichletAllocation(n_components=num_topics)
     lda.fit(features)
     return vectorizer, lda
+
+
+def load_model(filename):
+    """Load a model"""
+    with open(filename, 'rb') as f:
+        return pickle.load(f)
+
+    
+def load_score_function(config, filename):
+    vectorizer, model = load_model(filename)
+    def score(doc):
+        vect = vectorizer.transform(doc)
+        return model.transform(vect)
+    return score
