@@ -9,12 +9,12 @@ def init(config):
     Creates a queue from a config
     """
     if config['QUEUE']['TYPE'] == env.QUEUE_TYPE_MEMORY:
-        memory_queue.init_queue(config)
+        memory_queue.init_queue()
 
 def get_queue(config):
     """
     Get the queue
     """
     if config['QUEUE']['TYPE'] == env.QUEUE_TYPE_MEMORY:
-        return memory_queue.get_queue()
+        return memory_queue.get_doc_queue()
     return None

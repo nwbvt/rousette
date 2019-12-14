@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, make_response
 from rousette.queue import get_queue
+from rousette.doc_parser import get_parser
 
 app = Flask(__name__)
 
@@ -9,9 +10,11 @@ def submit_doc():
     Submit a document
     """
     queue = get_queue(app.config)
+    parser = get_parser(app.config)
     doc_id = request.json['doc_id']
     body = request.json['body']
-    queue.submit_doc(doc_id, body)
+    doc = parser(body)
+    queue.submit_doc(doc_id, doc)
     loc = f"/docs/{doc_id}"
     return jsonify(location=loc), 201, {"Location": loc}
 
