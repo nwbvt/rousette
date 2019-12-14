@@ -4,13 +4,22 @@ A memory backed queue
 from rousette import doc_parser, env
 
 _DOC_QUEUE = None
+_VEC_QUEUE = None
 
 def init_queue():
     global _DOC_QUEUE
+    global _VEC_QUEUE
     _DOC_QUEUE = MemoryQueue()
+    _VEC_QUEUE = MemoryQueue()
+
 
 def get_doc_queue():
     return _DOC_QUEUE
+
+
+def get_vec_queue():
+    return _VEC_QUEUE
+
 
 class MemoryQueue:
     """
@@ -29,17 +38,17 @@ class MemoryQueue:
         """
         if doc_id in self.by_id:
             return self.by_id[doc_id]
-        self.docs.append(doc)
-        self.by_id[doc_id] = self.docs.index(doc)
+        self.docs.append((doc_id, doc))
+        self.by_id[doc_id] = self.docs.index((doc_id, doc))
         for listener in self.listeners:
-            listener.notify(doc)
+            listener.notify(doc_id, doc)
 
     def get_by_id(self, doc_id):
         """
         Get a document by id
         """
         if doc_id in self.by_id:
-            return self.docs[self.by_id[doc_id]]
+            return self.docs[self.by_id[doc_id]][1]
 
     def iter(self, n=0, since=0):
         """

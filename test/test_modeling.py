@@ -2,7 +2,7 @@ import pytest
 import random
 import numpy as np
 from test.fixtures import *
-from rousette.models import lda, build_model
+from rousette.models import lda, build_model, load_scorer
 from rousette.db import MODEL
 
 VOCAB = ["the", "he", "she", "it", "is", "a", "an",
@@ -87,3 +87,7 @@ def test_build_model(config, doc_queue, parser, db):
     model_id = build_model(config, doc_queue, 3)
     result = db.execute(MODEL.select().where(MODEL.c.model_id==model_id)).fetchall()
     assert len(result) == 1
+    score = load_scorer(config, model_id)
+    bat_doc1 = parser(bat_doc(200))
+    bat_doc2 = parser(bat_doc(200))
+    assert np.argmax(score(bat_doc1)) == np.argmax(score(bat_doc2))
