@@ -2,7 +2,8 @@ import pytest
 import random
 import numpy as np
 from test.fixtures import *
-from rousette.models import lda
+from rousette.models import lda, build_model
+from rousette.db import MODEL
 
 VOCAB = ["the", "he", "she", "it", "is", "a", "an",
          "bat", "night", "echolocation", "cave",
@@ -42,12 +43,20 @@ def gen_doc_from_lang_model(probabilities, doc_length):
     choices = random.choices(VOCAB, probabilities, k=doc_length)
     return " ".join(choices)
 
+def bat_doc(doc_length):
+    return gen_doc_from_lang_model(BACKGROUND*.2 + BATS*.8, doc_length)
+
+def dog_doc(doc_length):
+    return gen_doc_from_lang_model(BACKGROUND*.2 + DOGS*.8, doc_length)
+
+def bird_doc(doc_length):
+    return gen_doc_from_lang_model(BACKGROUND*.2 + BIRDS*.8, doc_length)
 
 @pytest.fixture
 def docs():
-    bat_docs = [(f"bat{i}", gen_doc_from_lang_model(BACKGROUND*.2 + BATS*.8, 100)) for i in range(20)]
-    dog_docs = [(f"dog{i}", gen_doc_from_lang_model(BACKGROUND*.2 + DOGS*.8, 100)) for i in range(20)]
-    bird_docs = [(f"bird{i}", gen_doc_from_lang_model(BACKGROUND*.2 + BIRDS*.8, 100)) for i in range(20)]
+    bat_docs = [(f"bat{i}", bat_doc(100)) for i in range(30)]
+    dog_docs = [(f"dog{i}", dog_doc(100)) for i in range(30)]
+    bird_docs = [(f"bird{i}", bird_doc(100)) for i in range(30)]
     all_docs = bat_docs + dog_docs + bird_docs
     random.shuffle(all_docs)
     return all_docs
@@ -61,15 +70,20 @@ def doc_queue(docs, queue, parser):
 def test_lda(config, doc_queue, parser):
     vectorizer, model = lda(config, doc_queue, 3)
     assert set(vectorizer.vocabulary_) == set(VOCAB)
-    bat_doc1 = gen_doc_from_lang_model(BACKGROUND*.2 + BATS*.8, 100)
-    bat_doc2 = gen_doc_from_lang_model(BACKGROUND*.2 + BATS*.8, 100)
-    dog_doc = gen_doc_from_lang_model(BACKGROUND*.2 + DOGS*.8, 100)
-    bird_doc = gen_doc_from_lang_model(BACKGROUND*.2 + BIRDS*.8, 100)
+    bat_doc1 = bat_doc(200)
+    bat_doc2 = bat_doc(200)
+    dog_doc1 = dog_doc(200)
+    bird_doc1 = bird_doc(200)
     bat_vector1 = model.transform(vectorizer.transform(parser(bat_doc1)))
     bat_vector2 = model.transform(vectorizer.transform(parser(bat_doc2)))
-    dog_vector = model.transform(vectorizer.transform(parser(dog_doc)))
-    bird_vector = model.transform(vectorizer.transform(parser(bird_doc)))
+    dog_vector = model.transform(vectorizer.transform(parser(dog_doc1)))
+    bird_vector = model.transform(vectorizer.transform(parser(bird_doc1)))
     assert np.argmax(bat_vector1) == np.argmax(bat_vector2)
     assert np.argmax(bat_vector1) != np.argmax(dog_vector)
     assert np.argmax(bat_vector1) != np.argmax(bird_vector)
     assert np.argmax(bird_vector) != np.argmax(dog_vector)
+
+def test_build_model(config, doc_queue, parser, db):
+    model_id = build_model(config, doc_queue, 3)
+    result = db.execute(MODEL.select().where(MODEL.c.model_id==model_id)).fetchall()
+    assert len(result) == 1
