@@ -1,11 +1,12 @@
-from sqlalchemy import Table, MetaData, Column, Integer, String, create_engine
+from sqlalchemy import Table, MetaData, Column, Integer, Boolean, String, create_engine
 
 METADATA = MetaData()
 
 MODEL = Table("model", METADATA,
     Column("model_id", Integer, primary_key=True),
     Column("num_features", Integer),
-    Column("defintion_location", String))
+    Column("defintion_location", String),
+    Column("ready", Boolean))
 
 
 def get_db(config):

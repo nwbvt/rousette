@@ -5,7 +5,7 @@ from rousette.db import MODEL
 
 
 def test_lda(config, populated_queue, parser):
-    vectorizer, model = lda(config, populated_queue, 3)
+    vectorizer, model = lda(config, 3)
     assert set(vectorizer.vocabulary_) == set(VOCAB)
     bat_doc1 = bat_doc(200)
     bat_doc2 = bat_doc(200)
@@ -21,7 +21,7 @@ def test_lda(config, populated_queue, parser):
     assert np.argmax(bird_vector) != np.argmax(dog_vector)
 
 def test_build_model(config, populated_queue, parser, db):
-    model_id = build_model(config, populated_queue, 3)
+    model_id = build_model(config, 3)
     result = db.execute(MODEL.select().where(MODEL.c.model_id==model_id)).fetchall()
     assert len(result) == 1
     score = load_scorer(config, model_id)

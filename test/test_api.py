@@ -1,3 +1,5 @@
+import time
+from rousette.models import load_all_scorers
 from test.fixtures import *
 
 def test_submit_doc(client, config, doc_queue):
@@ -32,3 +34,9 @@ def test_get_vectorized_doc(client, docs, model, scorer):
     for doc_id, doc in docs:
         resp = client.get(f"/docs/{doc_id}/vector/{model}")
         assert resp.status_code == 200
+
+def test_build_model(config, client, docs, populated_queue):
+    resp = client.post("/models", json={"num_topics": 3})
+    assert resp.status_code == 200
+    model_id = resp.json['model_id']
+    assert model_id in load_all_scorers(config)

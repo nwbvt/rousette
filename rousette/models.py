@@ -15,26 +15,27 @@ def filename(config, model_id):
     return f"{save_loc}/{model_id}.pkl"
 
 
-def build_model(config, doc_queue, num_topics):
+def build_model(config, num_topics):
     """Build and save a model"""
     db = get_db(config)
     with db.connect() as conn:
-        result = conn.execute(MODEL.insert().values(num_features=num_topics))
+        result = conn.execute(MODEL.insert().values(num_features=num_topics, ready=False))
         model_id = result.inserted_primary_key[0]
-    model = lda(config, doc_queue, num_topics)
+    model = lda(config, num_topics)
     model_location = filename(config, model_id)
     with open(model_location, 'wb') as f:
         pickle.dump(model, f)
     with db.connect() as conn:
         conn.execute(MODEL.update().where(MODEL.c.model_id == model_id)
-                     .values(defintion_location=model_location))
+                     .values(defintion_location=model_location, ready=True))
     return model_id
 
 
-def lda(config, doc_queue, num_topics):
+def lda(config, num_topics):
     """Build an LDA model"""
     max_docs = config['MODEL']['MAX_DOCS']
-    docs = doc_queue.iter(n=max_docs)
+    queue = doc_queue.get_queue(config)
+    docs = queue.iter(n=max_docs)
     vectorizer = DictVectorizer()
     features = vectorizer.fit_transform([doc for _, doc in docs])
     lda = LatentDirichletAllocation(n_components=num_topics)
@@ -64,7 +65,7 @@ def load_all_scorers(config):
     """Load all the scoring functions"""
     db = get_db(config)
     with db.connect() as conn:
-        model_ids = conn.execute(select([MODEL.c.model_id])).fetchall()
+        model_ids = conn.execute(select([MODEL.c.model_id]).where(MODEL.c.ready)).fetchall()
     return {model_id: load_scorer(config, model_id) for model_id, in model_ids}
 
 
@@ -80,9 +81,9 @@ class Scorer:
         """Start the scorer"""
         self.active = True
         self.scorers = load_all_scorers(self.config)
-        in_queue = doc_queue.get_queue(self.config)
-        in_queue.register_listener(self.score_doc)
-        for doc_id, doc in in_queue.iter():
+        self.in_queue = doc_queue.get_queue(self.config)
+        self.in_queue.register_listener(self.score_doc)
+        for doc_id, doc in self.in_queue.iter():
             self.score_doc(doc_id, doc)
         t = threading.Thread(daemon=True, target=self.refresh_loop)
         t.start()
@@ -100,7 +101,7 @@ class Scorer:
             old_models = set(self.scorers.keys())
             self.scorers = load_all_scorers(self.config)
             new_scorers = {model_id: scorer for model_id, scorer in self.scorers.items() if model_id not in old_models}
-            for doc_id, doc in self.vec_queue.iter():
+            for doc_id, doc in self.in_queue.iter():
                 self.score_doc(doc_id, doc, new_scorers)
 
     def close(self):

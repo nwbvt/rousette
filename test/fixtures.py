@@ -106,7 +106,7 @@ def populated_queue(docs, doc_queue, parser):
 
 @pytest.fixture
 def model(config, populated_queue, parser, db):
-    model_id = build_model(config, populated_queue, 3)
+    model_id = build_model(config, 3)
     return model_id
 
 @pytest.fixture
