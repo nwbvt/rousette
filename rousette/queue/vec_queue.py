@@ -8,5 +8,5 @@ def get_queue(config):
     Get the queue
     """
     if config['QUEUE']['TYPE'] == env.QUEUE_TYPE_MEMORY:
-        return memory_queue.get_doc_queue()
+        return memory_queue.get_vec_queue()
     return None

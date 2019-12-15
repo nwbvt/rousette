@@ -41,7 +41,7 @@ class MemoryQueue:
         self.docs.append((doc_id, doc))
         self.by_id[doc_id] = self.docs.index((doc_id, doc))
         for listener in self.listeners:
-            listener.notify(doc_id, doc)
+            listener(doc_id, doc)
 
     def get_by_id(self, doc_id):
         """
