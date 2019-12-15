@@ -14,7 +14,7 @@ def get_db(config):
     Get a database connection
     """
     conn_string = config["DB"]["CONNECTION_STRING"]
-    conn_params = config["DB"].get("CONN_PARAMS")
+    conn_params = config["DB"].get("CONN_PARAMS", {})
     optional_args = config["DB"].get("ARGS", {})
     return create_engine(conn_string.format(**conn_params), **optional_args)
 
