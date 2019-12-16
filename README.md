@@ -31,7 +31,8 @@ Internal representations of documents and their vectorizations are stored in a q
 ## Running
 
 1. `ROUSETTE_ENV=$(pwd)/config/dev.py FLASK_APP=rousette flask run`
-2. A test script is provided to generate dummy documents in bulk. `python test/test_runner.py --length 1000 --num_docs 200` will generate 200 documents of 1000 words each and submit them to the api.
+2. A test script is provided to generate dummy documents in bulk. `PYTHONPATH=./ python test/test_runner.py --length 1000 --num_docs 200` will generate 200 documents of 1000 words each and submit them to the api.
 3. A document can be viewed using curl, `curl localhost:5000/docs/sample/doc_0/repr`
 4. A model can be generaged `curl -d '{"num_topics": 3}' -H "Content-Type: application/json" localhost:5000/models`
-5. Then the vector representation can be retrieved `curl localhost:5000/docs/sample/doc_0/vector/0`
+5. Wait for the model loaded and the docs to be vectorized (with the dev config, there is a 60 second refresh time)
+5. Then the vector representation can be retrieved `curl localhost:5000/docs/sample/doc_0/vector/1`
