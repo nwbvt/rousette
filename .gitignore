@@ -7,3 +7,6 @@ rousette.egg-info/PKG-INFO
 rousette.egg-info/SOURCES.txt
 rousette.egg-info/top_level.txt
 dev.sql
+build
+dist
+*.pkl
