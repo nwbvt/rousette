@@ -30,7 +30,7 @@ Internal representations of documents and their vectorizations are stored in a q
 
 ## Running
 
-1. `ROUSETTE_ENV=../config/dev.yaml FLASK_APP=rousette flask run`
+1. `ROUSETTE_ENV=$(pwd)/config/dev.py FLASK_APP=rousette flask run`
 2. A test script is provided to generate dummy documents in bulk. `python test/test_runner.py --length 1000 --num_docs 200` will generate 200 documents of 1000 words each and submit them to the api.
 3. A document can be viewed using curl, `curl localhost:5000/docs/sample/doc_0/repr`
 4. A model can be generaged `curl -d '{"num_topics": 3}' -H "Content-Type: application/json" localhost:5000/models`
