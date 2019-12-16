@@ -6,16 +6,16 @@ Scalable Document Vectorizer
 Rousette is designed to be an app that can be used to vectorize large numbers of documents.
 It runs as a web app and has four primary endpoints.
 
-1. `POST /docs`
+- `POST /docs`
   - `{"doc_id": "document identifier", "body": "The actual document text"}`
   - This adds a document to be vectorized. 
-2. `POST /models`
+- `POST /models`
   - `{"num_topics": numberOfTopics}`
   - This generates a model for vectorizing, where `num_topics` is the number of features the model will generate for each doc
   - There must be documents previously added
-3. `GET /docs/doc_id/repr`
+- `GET /docs/doc_id/repr`
   - This returns the internal representation of the document
-4. `GET /docs/doc_id/vector/model_id`
+- `GET /docs/doc_id/vector/model_id`
   - This returns the vectorized model
 
 ## Internals
