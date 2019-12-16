@@ -37,6 +37,6 @@ def test_get_vectorized_doc(client, docs, model, scorer):
 
 def test_build_model(config, client, docs, populated_queue):
     resp = client.post("/models", json={"num_topics": 3})
-    assert resp.status_code == 200
+    assert resp.status_code == 201
     model_id = resp.json['model_id']
     assert model_id in load_all_scorers(config)

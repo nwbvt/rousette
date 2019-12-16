@@ -42,4 +42,4 @@ def create_model():
     """Create a model"""
     num_topics = request.json["num_topics"]
     model_id = build_model(app.config, num_topics)
-    return jsonify(model_id=model_id)
+    return jsonify(model_id=model_id), 201
